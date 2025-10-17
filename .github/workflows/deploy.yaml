@@ -29,11 +29,6 @@ jobs:
       - name: Set image vars
         id: vars
         run: |
-          # Debug: Check if environment variables are available
-          echo "AWS_ACCOUNT_ID: $AWS_ACCOUNT_ID"
-          echo "AWS_REGION: $AWS_REGION"
-          echo "ECR_REPO: $ECR_REPO"
-          
           # Construct the full image name
           FULL_IMAGE_NAME="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO"
           SHORT_TAG="${GITHUB_SHA::7}"
@@ -45,15 +40,11 @@ jobs:
 
       - name: Assert image vars
         run: |
-          echo "Checking IMAGE_NAME: $IMAGE_NAME"
-          echo "Checking TAG: $TAG"
           test -n "$IMAGE_NAME" || { echo "IMAGE_NAME is empty"; exit 1; }
           test -n "$TAG" || { echo "TAG is empty"; exit 1; }
 
       - name: Build image
         run: |
-          echo "Building with IMAGE_NAME: $IMAGE_NAME"
-          echo "Building with TAG: $TAG"
           docker build -t $IMAGE_NAME:$TAG -t $IMAGE_NAME:latest .
 
   test_scan:
@@ -90,12 +81,17 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set image vars
+      - name: Set image vars from build job
         run: |
           echo "IMAGE_NAME=${{ needs.build.outputs.IMAGE_NAME }}" >> "$GITHUB_ENV"
           echo "TAG=${{ needs.build.outputs.TAG }}" >> "$GITHUB_ENV"
-          test -n "${{ needs.build.outputs.IMAGE_NAME }}" || { echo "IMAGE_NAME is empty"; exit 1; }
-          test -n "${{ needs.build.outputs.TAG }}" || { echo "TAG is empty"; exit 1; }
+
+      - name: Validate image vars
+        run: |
+          test -n "$IMAGE_NAME" || { echo "IMAGE_NAME is empty"; exit 1; }
+          test -n "$TAG" || { echo "TAG is empty"; exit 1; }
+          echo "Using IMAGE_NAME: $IMAGE_NAME"
+          echo "Using TAG: $TAG"
 
       - name: Build image
         run: |
