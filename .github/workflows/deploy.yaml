@@ -15,9 +15,8 @@ env:
   ECR_REPO: docker-repo
   MANIFEST: deploy1.yaml
   CONTAINER_NAME: app1
-  # Set these to match where your Dockerfile and app live:
-  DOCKERFILE: Dockerfile        # e.g., application/Dockerfile if not at root
-  DOCKER_CONTEXT: .             # e.g., application if your app folder is there
+  DOCKERFILE: Dockerfile
+  DOCKER_CONTEXT: .
 
 jobs:
   # 1) BUILD
@@ -45,6 +44,10 @@ jobs:
           echo "Using IMAGE_NAME=$IMAGE_NAME"
           echo "Using TAG=$TAG"
           echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
+
+      # 🔧 Create a Buildx builder (fixes "no builder '.' found")
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build image
         run: |
@@ -104,6 +107,10 @@ jobs:
           echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
           echo "Using IMAGE_NAME=$IMAGE_NAME"
           echo "Using TAG=$TAG"
+
+      # 🔧 Create a Buildx builder (fixes "no builder '.' found")
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       # Rebuild for this job context (same tags)
       - name: Build image (same tags)
