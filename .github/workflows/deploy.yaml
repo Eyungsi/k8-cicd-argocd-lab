@@ -54,6 +54,8 @@ jobs:
           scan-type: fs
           path: .
           severity: HIGH,CRITICAL
+          output: trivy-fs-results.json
+          exit-code: 0
           ignore-unfixed: true
 
       - name: Build & push image (one stage)
