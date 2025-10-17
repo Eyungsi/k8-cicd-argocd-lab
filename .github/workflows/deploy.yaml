@@ -15,6 +15,7 @@ env:
   ECR_REPO: docker-repo
   MANIFEST: deploy1.yaml
   CONTAINER_NAME: app1
+  IMAGE_NAME: app1-image
 
 jobs:
   # 1) BUILD
