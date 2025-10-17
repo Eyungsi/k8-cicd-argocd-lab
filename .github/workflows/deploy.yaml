@@ -31,7 +31,13 @@ jobs:
         id: vars
         run: |
           echo "TAG=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-          echo "IMAGE_NAME=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPO }}" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}" >> "$GITHUB_OUTPUT"
+
+      - name: Assert image vars
+        run: |
+          test -n "${{ steps.vars.outputs.IMAGE_NAME }}" || { echo "IMAGE_NAME is empty (check AWS_ACCOUNT_ID/ECR_REPO)"; exit 1; }
+          echo "Using IMAGE_NAME=${{ steps.vars.outputs.IMAGE_NAME }}"
+          echo "Using TAG=${{ steps.vars.outputs.TAG }}"
 
       - name: Build image
         run: |
