@@ -21,23 +21,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      TAG: ${{ steps.vars.outputs.TAG }}
-      IMAGE_NAME: ${{ steps.vars.outputs.IMAGE_NAME }}
+      TAG: ${{ steps.vars.outputs.TAG }}   # only pass non-secret tag across jobs
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set image vars
+      - name: Set tag
         id: vars
         run: |
           echo "TAG=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-          echo "IMAGE_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}" >> "$GITHUB_OUTPUT"
-          # also export as env for subsequent steps in this job
           echo "TAG=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
-          echo "IMAGE_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}" >> "$GITHUB_ENV"
 
-      - name: Assert image vars
+      - name: Derive image name (for this job only)
         run: |
+          echo "IMAGE_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}" >> "$GITHUB_ENV"
           test -n "${IMAGE_NAME}" || { echo "IMAGE_NAME is empty (check AWS_ACCOUNT_ID/ECR_REPO)"; exit 1; }
           echo "Using IMAGE_NAME=${IMAGE_NAME}"
           echo "Using TAG=${TAG}"
@@ -88,14 +85,14 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         id: ecr
 
-      # Rebuild for this job context (same tags as build job)
-      - name: Set image vars (from build outputs)
+      - name: Derive image vars (in this job)
         run: |
-          echo "IMAGE_NAME=${{ needs.build.outputs.IMAGE_NAME }}" >> "$GITHUB_ENV"
+          echo "IMAGE_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}" >> "$GITHUB_ENV"
           echo "TAG=${{ needs.build.outputs.TAG }}" >> "$GITHUB_ENV"
-          test -n "${{ needs.build.outputs.IMAGE_NAME }}" || { echo "IMAGE_NAME is empty"; exit 1; }
-          test -n "${{ needs.build.outputs.TAG }}" || { echo "TAG is empty"; exit 1; }
+          test -n "${IMAGE_NAME}" || { echo "IMAGE_NAME is empty"; exit 1; }
+          test -n "${TAG}" || { echo "TAG is empty"; exit 1; }
 
+      # Rebuild for this job context (same tags)
       - name: Build image (same tags)
         run: |
           docker build \
@@ -115,10 +112,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Derive image vars (for deploy)
+        run: |
+          echo "IMAGE_NAME=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}" >> "$GITHUB_ENV"
+          echo "TAG=${{ needs.build.outputs.TAG }}" >> "$GITHUB_ENV"
+
       - name: Bump image in manifest (deploy1.yaml)
         uses: mikefarah/yq@v4.44.3
         env:
-          NEW_IMAGE: ${{ needs.build.outputs.IMAGE_NAME }}:${{ needs.build.outputs.TAG }}
+          NEW_IMAGE: ${{ env.IMAGE_NAME }}:${{ env.TAG }}
           FILE: ${{ env.MANIFEST }}
           CONTAINER: ${{ env.CONTAINER_NAME }}
         with:
@@ -134,5 +136,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git add "${MANIFEST}"
-          git commit -m "deploy: ${CONTAINER_NAME} -> ${{ needs.build.outputs.IMAGE_NAME }}:${{ needs.build.outputs.TAG }}" || echo "No changes"
+          git commit -m "deploy: ${CONTAINER_NAME} -> ${IMAGE_NAME}:${TAG}" || echo "No changes"
           git push
