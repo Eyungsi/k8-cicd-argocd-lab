@@ -17,7 +17,7 @@ env:
   CONTAINER_NAME: app1
 
 jobs:
-  # ============ BUILD (no push) ============
+  # ===== Stage 1: Build + Scan + Push =====
   build:
     runs-on: ubuntu-latest
     outputs:
@@ -33,33 +33,6 @@ jobs:
           echo "TAG=$SHORT_TAG" >> "$GITHUB_OUTPUT"
           echo "TAG=$SHORT_TAG" >> "$GITHUB_ENV"
 
-      - name: Build image (local only)
-        run: |
-          IMAGE_NAME="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO"
-          echo "Building locally: $IMAGE_NAME:$TAG"
-          docker build -t "$IMAGE_NAME:$TAG" -t "$IMAGE_NAME:latest" .
-
-  # ============ TEST ============
-  test_scan:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.24.0
-        with:
-          scan-type: fs
-          path: .
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-
-  # ============ PUSH (after test) ============
-  push:
-    runs-on: ubuntu-latest
-    needs: [build, test_scan]
-    steps:
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -75,25 +48,31 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set tag from build job
-        run: |
-          echo "TAG=${{ needs.build.outputs.TAG }}" >> "$GITHUB_ENV"
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          path: .
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
 
-      - name: Build and push with reconstructed name
+      - name: Build & push image (one stage)
         run: |
           IMAGE_NAME="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO"
           echo "Using IMAGE_NAME: $IMAGE_NAME"
           echo "Using TAG: $TAG"
+
           test -n "$IMAGE_NAME" || { echo "IMAGE_NAME is empty"; exit 1; }
           test -n "$TAG" || { echo "TAG is empty"; exit 1; }
+
           docker build -t "$IMAGE_NAME:$TAG" -t "$IMAGE_NAME:latest" .
           docker push "$IMAGE_NAME:$TAG"
           docker push "$IMAGE_NAME:latest"
 
-  # ============ DEPLOY ============
+  # ===== Stage 2: Deploy =====
   deploy:
     runs-on: ubuntu-latest
-    needs: push
+    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
