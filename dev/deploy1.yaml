@@ -1,9 +1,10 @@
-#app1.yaml 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app1
   namespace: argocd
+  labels:
+    app: app1
 spec:
   replicas: 2
   selector:
@@ -15,7 +16,6 @@ spec:
         app: app1
     spec:
       containers:
-<<<<<<< HEAD
         - name: app1
           # Your workflow will overwrite this with the new ECR tag
           image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:1f92d27
@@ -40,22 +40,22 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
-=======
-      - name: app1
-        image: eyungsi/schoolapp2:5
-        ports:
-        - containerPort: 80
->>>>>>> 3f44050 (new changes)
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: app1-service
   namespace: argocd
+  labels:
+    app: app1
 spec:
   type: ClusterIP
-  ports:
-  - port: 80
-    targetPort: 80
   selector:
     app: app1
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  template:
+    spec:
+      containers: []
