@@ -71,7 +71,7 @@ jobs:
           docker push "$IMAGE_NAME:$TAG"
           docker push "$IMAGE_NAME:latest"
 
-  # ===== Stage 2: Deploy =====
+  # ===== Stage 2: Deploy =====in argo cd
   deploy:
     runs-on: ubuntu-latest
     needs: build
