@@ -5,7 +5,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # 3) Copy your app (repo-root/application/ -> Nginx document root)
-COPY static-resume-main/* /usr/share/nginx/html/
+COPY static-resume-main/ /usr/share/nginx/html/
 
 # 5) Expose port 80 (HTTP)
 EXPOSE 80
