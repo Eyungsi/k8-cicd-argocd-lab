@@ -4,12 +4,12 @@ metadata:
   name: multi-app-ingress
   namespace: argocd
   annotations:
+    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:767398149585:certificate/09aba954-bf61-426f-a81b-6606dcedc76c 
 spec:
-  ingressClassName: alb
   rules:
   - host: app1.emar-yetech.com
     http:
