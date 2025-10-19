@@ -12,7 +12,7 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-  - host: app1.emar-yetech.com     # subdomain for app1 modify to put your own subdomain 
+  - host: app1.emar-yetech.com     # subdomain for app1 modify to put your own subdomain updated 
     http:
       paths:
       - path: /
