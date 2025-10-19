@@ -9,9 +9,9 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:767398149585:certificate/09aba954-bf61-426f-a81b-6606dcedc76c  # Add the arn number of your ACM certification here
 spec:
-  ingressClassName: alb
+  ingressClass: alb
   rules:
-  - host: app1.emar-yetech.com     # subdomain for app1 modify to put your own subdomain updated
+  - host: app1.emar-yetech.com     # subdomain for app1 modify to put your own subdomain 
     http:
       paths:
       - path: /
@@ -21,4 +21,24 @@ spec:
             name: app1-service
             port:
               number: 80
- 
+  - host: app2.emar-yetech.com   # subdomain for app2 moify to put your own subdomain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app2-service
+            port:
+              number: 80
+
+  - host: app3.emar-yetech.com   # subdomain for app2 moify to put your own subdomain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app3-service
+            port:
+              number: 80
