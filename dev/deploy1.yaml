@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app1
-#  namespace: default
 spec:
   replicas: 2
   selector:
@@ -15,11 +14,10 @@ spec:
         app: app1
     spec:
       containers:
-        - name: app1
-          # Your workflow will overwrite this with the new ECR tag
-          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:6795604
-          ports:
-            - containerPort: 80
+      - name: app1
+        image: eyungsi/schoolapp2:5
+        ports:
+        - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -28,17 +26,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 80
-      targetPort: 80
+  - port: 80
+    targetPort: 80
   selector:
     app: app1
-  #template:
-  #spec:
-  #containers: []
-
-  template:
-    spec:
-      containers: []
-# template:
-#   spec:
-#    containers: []
