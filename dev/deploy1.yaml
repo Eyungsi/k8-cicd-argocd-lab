@@ -50,6 +50,6 @@ spec:
       targetPort: 80
   selector:
     app: app1
-  template:
-    spec:
-      containers: []
+  #template:
+    #spec:
+      #containers: []
