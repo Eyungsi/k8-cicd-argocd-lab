@@ -2,23 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: multi-app-ingress
-  namespace: default              # <-- change if your services live elsewhere
   annotations:
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing          # or "internal"
+    alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:767398149585:certificate/09aba954-bf61-426f-a81b-6606dcedc76c
-    # Optional: put this Ingress in a shared ALB group (lets other apps share the same ALB)
-    alb.ingress.kubernetes.io/group.name: shared-ingress
-    alb.ingress.kubernetes.io/group.order: '10'
-    # Optional: tweak healthcheck (applies to all rules)
-    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:767398149585:certificate/09aba954-bf61-426f-a81b-6606dcedc76c  # Add the arn number of your ACM certification here
 spec:
-  ingressClassName: alb
   rules:
-  - host: app1.emar-yetech.com
+  - host: app1.emar-yetech.com     # subdomain for app1 modify to put your own subdomain 
     http:
       paths:
       - path: /
@@ -28,7 +20,7 @@ spec:
             name: app1-service
             port:
               number: 80
-  - host: app2.emar-yetech.com
+  - host: app2.emar-yetech.com   # subdomain for app2 moify to put your own subdomain
     http:
       paths:
       - path: /
@@ -38,7 +30,8 @@ spec:
             name: app2-service
             port:
               number: 80
-  - host: app3.emar-yetech.com
+
+  - host: app3.emar-yetech.com   # subdomain for app2 moify to put your own subdomain
     http:
       paths:
       - path: /
