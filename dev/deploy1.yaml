@@ -16,7 +16,7 @@ spec:
       containers:
         - name: app1
           # Your workflow will overwrite this with the new ECR tag
-          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:82a9504
+          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:a189caa
           ports:
             - containerPort: 80
           readinessProbe:
@@ -46,7 +46,10 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 80
+    - port: 80
+      targetPort: 80
   selector:
     app: app1
+  template:
+    spec:
+      containers: []
