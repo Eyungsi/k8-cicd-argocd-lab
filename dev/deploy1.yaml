@@ -17,28 +17,28 @@ spec:
       containers:
         - name: app1
           # Your workflow will overwrite this with the new ECR tag
-          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:9caf15f
+          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:51934e1
           ports:
             - containerPort: 80
- #         readinessProbe:
- #           httpGet:
+              #         readinessProbe:
+              #           httpGet:
   #            path: /
   #            port: 80
   #          initialDelaySeconds: 5
   #          periodSeconds: 10
   #        livenessProbe:
- #           httpGet:
- #             path: /
- #             port: 80
- #           initialDelaySeconds: 15
- #           periodSeconds: 20
- #         resources:
- #           requests:
- #             cpu: 100m
- #             memory: 128Mi
-  #          limits:
- #             cpu: 500m
- #             memory: 512Mi
+#           httpGet:
+#             path: /
+#             port: 80
+#           initialDelaySeconds: 15
+#           periodSeconds: 20
+#         resources:
+#           requests:
+#             cpu: 100m
+#             memory: 128Mi
+#          limits:
+#             cpu: 500m
+#             memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
@@ -56,6 +56,9 @@ spec:
   #spec:
   #containers: []
 
- # template:
- #   spec:
-  #    containers: []
+  template:
+    spec:
+      containers: []
+# template:
+#   spec:
+#    containers: []
