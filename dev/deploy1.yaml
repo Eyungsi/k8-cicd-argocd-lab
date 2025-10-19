@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app1
- # namespace: demo-app
+  # namespace: demo-app
   labels:
     app: app1
 spec:
@@ -18,7 +18,7 @@ spec:
       containers:
         - name: app1
           # Your workflow will overwrite this with the new ECR tag
-          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:310b608
+          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:5419984
           ports:
             - containerPort: 80
           readinessProbe:
