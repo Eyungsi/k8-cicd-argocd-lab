@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: app1
-          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:e05c598
+          image: 767398149585.dkr.ecr.us-east-1.amazonaws.com/docker-repo:a1f9375
           ports:
             - containerPort: 80
 ---
